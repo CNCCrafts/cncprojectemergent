@@ -1,4 +1,4 @@
-//const path = require('path');
+const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const express  = require('express');
@@ -349,9 +349,11 @@ app.get('/api/categories', (req, res) => {
 });
 
 // ─── Static (production) ──────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, '../client/dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'CNC Crafts Backend API is running.'
+  });
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
