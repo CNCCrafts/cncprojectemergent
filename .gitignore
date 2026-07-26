@@ -1,0 +1,15 @@
+node_modules/
+client/node_modules/
+server/node_modules/
+client/dist/
+server/cnc_ecom.db
+server/uploads/
+.env
+*.log
+.DS_Store
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
