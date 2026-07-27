@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { apiUrl } from '../config/api';
 
 export default function OfferBanner() {
   const [banner, setBanner] = useState(null);
