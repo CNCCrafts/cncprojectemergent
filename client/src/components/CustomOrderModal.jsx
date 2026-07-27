@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Send, Sparkles, ArrowUpRight } from 'lucide-react';
+import { X, Send, Sparkles, ArrowUpRight, Ruler, Palette, Layers, MessageSquare, CheckCircle, ChevronLeft } from 'lucide-react';
 
 const CATEGORIES = [
   { id: 'acrylic', label: 'Acrylic Art' },
@@ -10,50 +10,44 @@ const CATEGORIES = [
   { id: 'other',   label: 'Something else' },
 ];
 
-export default function CustomOrderModal({ open, onClose }) {
-  const [form, setForm] = useState({
-    name: '', email: '', phone: '',
-    category: 'acrylic',
-    dimensions: '', quantity: '1',
-    budget: '', timeline: '',
-    message: '',
-  });
-  const [sent, setSent]         = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
-
-  if (!open) return null;
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const message = [
-        `Category: ${form.category}`,
-        `Dimensions: ${form.dimensions || '—'}`,
-        `Quantity: ${form.quantity || '1'}`,
-        `Budget: ${form.budget || '—'}`,
-        `Timeline: ${form.timeline || '—'}`,
-        '',
-        'Brief:',
-        form.message,
-      ].join('\n');
-
-      const res = await fetch('/api/contact', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          name:    form.name,
-          email:   form.email,
-          phone:   form.phone,
-          subject: `Custom Order — ${form.category}`,
-          message,
-          type:    'custom_order',
-        }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error || 'Failed to send');
-      setSent(true);
+const MATERIALS_BY_CATEGORY = {
+  acrylic: [
+    { id: 'acrylic-2mm', label: '2mm Clear Acrylic', desc: 'Lightweight, best for small wall pieces' },
+    { id: 'acrylic-3mm', label: '3mm Clear Acrylic', desc: 'Standard thickness, great for signs and art' },
+    { id: 'acrylic-5mm', label: '5mm Clear Acrylic', desc: 'Premium thickness for statement pieces' },
+    { id: 'acrylic-8mm', label: '8mm Clear Acrylic', desc: 'Heavy-duty architectural' },
+    { id: 'acrylic-matte', label: '3mm Matte Acrylic', desc: 'Non-reflective matte finish' },
+    { id: 'acrylic-mirror', label: '3mm Mirror Acrylic', desc: 'Reflective mirror-like surface' },
+    { id: 'acrylic-uv', label: '3mm UV Print Acrylic', desc: 'Full-color UV printed on acrylic' },
+  ],
+  mdf: [
+    { id: 'mdf-3mm', label: '3mm MDF', desc: 'Thin, great for intricate laser cuts' },
+    { id: 'mdf-6mm', label: '6mm MDF', desc: 'Standard thickness for wall decor' },
+    { id: 'mdf-9mm', label: '9mm MDF', desc: 'Medium thickness, sturdy pieces' },
+    { id: 'mdf-12mm', label: '12mm MDF', desc: 'Thick, structural applications' },
+    { id: 'mdf-natural', label: 'Natural MDF', desc: 'Raw MDF with sealed edges' },
+    { id: 'mdf-painted', label: 'Painted MDF', desc: 'Custom color painted finish' },
+    { id: 'mdf-laminated', label: 'Laminated MDF', desc: 'With textured laminate layer' },
+  ],
+  acp: [
+    { id: 'acp-3mm', label: '3mm ACP', desc: 'Standard aluminium composite' },
+    { id: 'acp-4mm', label: '4mm ACP', desc: 'Heavy-duty aluminium composite' },
+    { id: 'acp-brushed', label: 'Brushed Aluminium', desc: 'Metallic brushed finish' },
+    { id: 'acp-glossy', label: 'Glossy White ACP', desc: 'High-gloss white finish' },
+    { id: 'acp-wood', label: 'Wood Finish ACP', desc: 'Timber-look aluminium panels' },
+    { id: 'acp-digital', label: 'Digital Print ACP', desc: 'Full-color UV printed ACP' },
+  ],
+  pvc: [
+    { id: 'pvc-3mm', label: '3mm PVC Foam', desc: 'Lightweight, good for indoor displays' },
+    { id: 'pvc-5mm', label: '5mm PVC Foam', desc: 'Standard display board thickness' },
+    { id: 'pvc-10mm', label: '10mm PVC Foam', desc: 'Thick, rigid for stands' },
+    { id: 'pvc-glossy', label: 'Glossy PVC', desc: 'High-gloss finish PVC' },
+    { id: 'pvc-matte', label: 'Matte PVC', desc: 'Non-reflective matte board' },
+  ],
+  '3d': [
+    { id: '3d-pla', label: 'PLA Filament', desc: 'Standard matte finish, eco-friendly' },
+    { id: '3d-resin', label: 'Resin Print', desc: 'High detail, smooth surface finish' },
+    { id: '3d-petg', label: 'PETG Filament', desc: 'Durable, slightly flexible' },
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
