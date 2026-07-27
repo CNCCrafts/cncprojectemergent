@@ -270,7 +270,7 @@ export default function LoginModal() {
                 <label>Admin Email</label>
                 <div className="input-icon-wrap">
                   <Mail size={16} className="input-icon" />
-                  <input type="email" placeholder="admin@cnccrafts.in" required style={{ paddingLeft: 38 }} {...field('email')} />
+                  <input type="email" placeholder="Enter your email address" required style={{ paddingLeft: 38 }} {...field('email')} />
                 </div>
               </div>
               <div className="form-group">
