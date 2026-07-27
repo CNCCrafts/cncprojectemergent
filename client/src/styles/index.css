@@ -1600,13 +1600,13 @@ html { scroll-behavior: smooth; }
 }
 
 .site-footer__credit a {
-  color: #f8fafc;
+  color: #b45309;
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .site-footer__credit a:hover {
-  color: #a855f7;
+  color: #b45309;
   text-decoration: underline;
 }
