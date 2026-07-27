@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';awa
 import {
   Package, ShoppingBag, BarChart2, Plus, Pencil, Trash2,
   Save, X, RefreshCw, ChevronDown, AlertCircle, CheckCircle,
@@ -143,7 +143,12 @@ export default function Admin() {
     const payload = { ...form, price: parseFloat(form.price) || 0, offer_price: form.offer_price !== '' ? parseFloat(form.offer_price) : null, stock: parseInt(form.stock) || 0 };
     if (!payload.name || !payload.category) return showToast('Identity and category required.', 'error');
     if (editingProduct) {
-      await fetch(apiUrl(`/api/products/${editingProduct.id}`), {, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+      await fetch(apiUrl(`/api/products/${editingProduct.id}`), {
+  method: 'PUT',
+  headers: authHeaders(),
+  body: JSON.stringify(payload),
+});
+      
       showToast('Catalog entry updated.');
     } else {
       await fetch(apiUrl('/api/products'), { method: 'POST', headers: authHeaders(), body: JSON.stringify(payload) });
