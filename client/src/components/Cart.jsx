@@ -13,7 +13,7 @@ export default function Cart({ open, onClose }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch('/api/orders', {
+     fetch(apiUrl('/api/orders'), ...)
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
