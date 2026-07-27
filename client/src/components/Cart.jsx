@@ -10,29 +10,43 @@ export default function Cart({ open, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-     fetch(apiUrl('/api/orders'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: form.name,
-          customerEmail: form.email,
-          customerPhone: form.phone,
-          address: form.address,
-          items: cart,
-          total,
-        }),
-      });
-      dispatch({ type: 'CLEAR_CART' });
-      setSubmitted(true);
-    } catch (err) {
-      alert('Order failed. Please try again.');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const res = await fetch(apiUrl('/api/orders'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customerName: form.name,
+        customerEmail: form.email,
+        customerPhone: form.phone,
+        address: form.address,
+        items: cart,
+        total,
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(error || "Order failed");
     }
+
+    const data = await res.json();
+    console.log("Order created:", data);
+
+    dispatch({ type: 'CLEAR_CART' });
+    setSubmitted(true);
+  } catch (err) {
+    console.error(err);
+    alert("Order failed. Please try again.");
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   if (!open) return null;
 
