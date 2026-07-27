@@ -119,7 +119,7 @@ fetch(apiUrl('/api/products/all'), {
     data.append('image', file);
     const token = localStorage.getItem('cnc_admin_token');
     try {
-      const res  = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: data });
+      const res  = fetch(apiUrl('/api/upload'), {, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: data });
       const json = await res.json();
       if (json.url) { setForm(v => ({ ...v, image: json.url })); setImagePreview(json.url); showToast('Asset synchronized.'); }
     } catch { showToast('Transmission failed.', 'error'); }
@@ -130,10 +130,10 @@ fetch(apiUrl('/api/products/all'), {
     const payload = { ...form, price: parseFloat(form.price) || 0, offer_price: form.offer_price !== '' ? parseFloat(form.offer_price) : null, stock: parseInt(form.stock) || 0 };
     if (!payload.name || !payload.category) return showToast('Identity and category required.', 'error');
     if (editingProduct) {
-      await fetch(`/api/products/${editingProduct.id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+      await fetch(apiUrl(`/api/products/${editingProduct.id}`), {, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
       showToast('Catalog entry updated.');
     } else {
-      await fetch('/api/products', { method: 'POST', headers: authHeaders(), body: JSON.stringify(payload) });
+      await fetch(apiUrl('/api/products'), { method: 'POST', headers: authHeaders(), body: JSON.stringify(payload) });
       showToast('New entry established.');
     }
     setShowForm(false);
@@ -142,7 +142,7 @@ fetch(apiUrl('/api/products/all'), {
 
   const deleteProduct = async (id) => {
     if (!confirm('Permanently remove this entry?')) return;
-    await fetch(`/api/products/${id}`, { method: 'DELETE', headers: authHeaders() });
+    await fetch(apiUrl(`/api/products/${id}`), { method: 'DELETE', headers: authHeaders() });
     showToast('Entry decommissioned.');
     loadProducts();
   };
@@ -150,14 +150,14 @@ fetch(apiUrl('/api/products/all'), {
   const saveStock = async (id) => {
     const stock = parseInt(inventoryEdits[id]);
     if (isNaN(stock)) return;
-    await fetch(`/api/inventory/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ stock }) });
+    await fetch(apiUrl(`/api/inventory/${id}`), { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ stock }) });
     showToast('Inventory levels adjusted.');
     loadProducts();
     setInventoryEdits(v => { const c = { ...v }; delete c[id]; return c; });
   };
 
   const updateStatus = async (id, status) => {
-    await fetch(`/api/orders/${id}/status`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ status }) });
+    await fetch(apiUrl(`/api/orders/${id}/status`), { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ status }) });
     showToast(`Order transitioned to ${status}.`);
     loadOrders();
   };
@@ -170,7 +170,7 @@ fetch(apiUrl('/api/products/all'), {
       offer_price, description: product.description, image: product.image,
       stock: product.stock, active: product.active,
     };
-    await fetch(`/api/products/${product.id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+    await fetch(apiUrl(`/api/products/${product.id}`), { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
     showToast(offer_price ? `Offer price locked: ₹${offer_price}` : 'Offer removed.');
     loadProducts();
     setOfferEdits(v => { const c = { ...v }; delete c[product.id]; return c; });
@@ -192,7 +192,7 @@ fetch(apiUrl('/api/products/all'), {
 
   const saveBanner = async () => {
     setBannerSaving(true);
-    await fetch('/api/settings', {
+    await fetch(apiUrl('/api/settings'), {
       method: 'PUT', headers: authHeaders(),
       body: JSON.stringify({ banner_image: bannerImage, banner_text: bannerText, banner_active: bannerActive ? '1' : '0' }),
     });
@@ -203,7 +203,7 @@ fetch(apiUrl('/api/products/all'), {
 
   const clearBanner = async () => {
     setBannerImage(''); setBannerPreview(''); setBannerText(''); setBannerActive(false);
-    await fetch('/api/settings', {
+    await fetch(apiUrl('/api/settings'), {
       method: 'PUT', headers: authHeaders(),
       body: JSON.stringify({ banner_image: '', banner_text: '', banner_active: '0' }),
     });
