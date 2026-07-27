@@ -7,11 +7,11 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin]   = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
 
-  useEffect(() => {
+ useEffect(() => {
     // Restore admin session
     const token = localStorage.getItem('cnc_admin_token');
     if (token) {
-      fetch('/api/auth/verify', { headers: { Authorization: `Bearer ${token}` } })
+      fetch(apiUrl('/api/auth/verify'), { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.ok ? setIsAdmin(true) : localStorage.removeItem('cnc_admin_token'))
         .catch(() => {});
     }
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
 
   // ── Customer signup ───────────────────────────────────────────────────────
   const customerSignup = async (name, email, password) => {
-    const res = await fetch('/api/auth/customer-register', {
+    const res = await fetch(apiUrl('/api/auth/customer-register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
 
   // ── Customer email login ──────────────────────────────────────────────────
   const customerLogin = async (email, password) => {
-    const res = await fetch('/api/auth/customer-login', {
+    const res = await fetch(apiUrl('/api/auth/customer-login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -64,8 +64,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('cnc_user', JSON.stringify(u));
     setLoginOpen(false);
   };
-
-  // ── Google login ──────────────────────────────────────────────────────────
+  // gauth login ──────────────────────────────────────────────────────────
   const googleLogin = (googleUser) => {
     const u = { name: googleUser.name, email: googleUser.email, picture: googleUser.picture };
     setUser(u);
