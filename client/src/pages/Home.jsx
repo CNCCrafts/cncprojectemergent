@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ShieldCheck, Truck, Headphones, ArrowUpRight, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { apiUrl } from '../config/api';
+
 
 const CATEGORIES = [
   {
@@ -58,7 +60,7 @@ export default function Home() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch(apiUrl('/api/products'))
       .then((r) => r.json())
       .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch(() => {});
