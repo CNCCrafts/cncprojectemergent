@@ -6,6 +6,7 @@ import {
   Check
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { apiUrl } from '../config/api';
 
 const CATEGORIES = [
   { id: 'acrylic', label: 'Acrylic Art' },
@@ -60,15 +61,15 @@ export default function Admin() {
   };
 
   const loadProducts = () =>
-    fetch('/api/products/all', { headers: authHeaders() })
+fetch(apiUrl('/api/products/all'), {
       .then(r => r.json()).then(setProducts);
 
   const loadOrders = () =>
-    fetch('/api/orders', { headers: authHeaders() })
+    fetch(apiUrl('/api/orders'), {
       .then(r => r.json()).then(setOrders);
 
   const loadSettings = () =>
-    fetch('/api/settings')
+    fetch(apiUrl('/api/settings'))
       .then(r => r.json())
       .then(s => {
         setBannerImage(s.banner_image || '');
