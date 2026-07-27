@@ -1588,3 +1588,25 @@ html { scroll-behavior: smooth; }
   font-size: 1.35rem;
   border: 1px solid rgba(199,69,31,0.14);
 }
+.site-footer__copyright {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.site-footer__credit {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.site-footer__credit a {
+  color: #8b5cf6;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.site-footer__credit a:hover {
+  color: #a855f7;
+  text-decoration: underline;
+}
