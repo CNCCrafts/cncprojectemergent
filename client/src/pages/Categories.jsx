@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ShoppingBag, Search, Check, Sparkles } from 'lucide-react';
+import { ShoppingBag, Search, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import CustomOrderModal from '../components/CustomOrderModal';
+import { apiUrl } from '../config/api';
 
 const SECTIONS = [
   { id: 'acrylic', label: 'Acrylic Art',  kicker: '01', icon: 'ti-diamond',        desc: 'Vibrant, crystal-clear acrylic panels for home & office spaces.' },
@@ -79,7 +79,7 @@ export default function Categories() {
   const sectionRefs = useRef({});
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch(apiUrl('/api/products'))
       .then(r => r.json())
       .then(data => { setProducts(data); setLoading(false); })
       .catch(() => setLoading(false));
