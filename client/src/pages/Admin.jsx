@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';awa
+import { useState, useEffect } from 'react';
 import {
   Package, ShoppingBag, BarChart2, Plus, Pencil, Trash2,
   Save, X, RefreshCw, ChevronDown, AlertCircle, CheckCircle,
