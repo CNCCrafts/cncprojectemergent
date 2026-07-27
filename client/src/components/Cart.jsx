@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowUpRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { apiUrl } from '../config/api';
 
 export default function Cart({ open, onClose }) {
   const { cart, dispatch, total } = useCart();
