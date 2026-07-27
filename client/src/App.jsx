@@ -92,20 +92,29 @@ function AppShell() {
             </div>
 
             <div className="site-footer__base">
-              <div>© {new Date().getFullYear()} CNC Craft &amp; Solutions — Precision in Every Cut.</div>
-              <div className="site-footer__legal">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Refund Policy</a>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </>
-  );
-}
+  <div className="site-footer__copyright">
+    <div>
+      © {new Date().getFullYear()} CNC Craft &amp; Solutions — Precision in Every Cut.
+    </div>
 
+    <div className="site-footer__credit">
+      Design &amp; Developed by{" "}
+      <a
+        href="https://pulseonsolutions.in"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Pulseon Solutions
+      </a>
+    </div>
+  </div>
+
+  <div className="site-footer__legal">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Refund Policy</a>
+  </div>
+</div>
 export default function App() {
   return (
     <AuthProvider>
