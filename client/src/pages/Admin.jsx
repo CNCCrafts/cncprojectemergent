@@ -125,7 +125,14 @@ export default function Admin() {
     data.append('image', file);
     const token = localStorage.getItem('cnc_admin_token');
     try {
-      const res  = fetch(apiUrl('/api/upload'), {, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: data });
+      const res = await fetch(apiUrl('/api/upload'), {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  body: data,
+});
+      
       const json = await res.json();
       if (json.url) { setForm(v => ({ ...v, image: json.url })); setImagePreview(json.url); showToast('Asset synchronized.'); }
     } catch { showToast('Transmission failed.', 'error'); }
