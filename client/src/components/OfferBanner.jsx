@@ -7,7 +7,7 @@ export default function OfferBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch(apiUrl('/api/settings'))
       .then(r => r.json())
       .then(s => {
         if (s.banner_active === '1' && (s.banner_image || s.banner_text)) {
