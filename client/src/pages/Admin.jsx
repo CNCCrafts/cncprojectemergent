@@ -68,9 +68,12 @@ export default function Admin() {
     .then(setProducts);
   
   const loadOrders = () =>
-    fetch(apiUrl('/api/orders'), {
-      .then(r => r.json()).then(setOrders);
-
+  fetch(apiUrl('/api/orders'), {
+    headers: authHeaders(),
+  })
+    .then(r => r.json())
+    .then(setOrders);
+  
   const loadSettings = () =>
     fetch(apiUrl('/api/settings'))
       .then(r => r.json())
