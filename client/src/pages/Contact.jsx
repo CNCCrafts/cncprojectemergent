@@ -47,10 +47,9 @@ export default function Contact() {
             <span className="eyebrow">Direct lines</span>
             <h2>Reach the studio.</h2>
             {[
-              { icon: <Mail size={18} strokeWidth={1.75} />, label: 'clientscred@gmail.com' },
-              { icon: <Phone size={18} strokeWidth={1.75} />, label: '+91 00000 00000' },
-              { icon: <MapPin size={18} strokeWidth={1.75} />, label: 'India — nationwide delivery' },
-            ].map((i) => (
+              { icon: <Mail size={18} strokeWidth={1.75} />, label: 'support@cnccrafts.in' },
+              { icon: <Phone size={18} strokeWidth={1.75} />, label: '+91 7276100364' },
+              { icon: <MapPin size={18} strokeWidth={2} />, label: 'Vikas Nagar Road, behind Shinde petrol pump, near Sanjeevani Clinic, TC Colony, Kiwale, Pimpri-Chinchwad, Maharashtra 412101' },].map((i) => (
               <div key={i.label} className="contact-info__item">
                 {i.icon} <span>{i.label}</span>
               </div>
