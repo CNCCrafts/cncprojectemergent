@@ -1,0 +1,8 @@
+◇ injected env (12) from ..\.env // tip: ⌘ override existing { override: true }
+📸 Image storage: Cloudinary
+🔐 Admin login: expected email="admin@cnccrafts.com" (from env: YES)
+🔐 Admin login: expected password set=YES
+✅ Mongo connected → db="cnc_ecom"
+✅ Native MongoDB driver connected.
+🚀 CNC-ECOM server running on http://localhost:3001
+✅ MongoDB connected: clus1-shard-00-01.hbkax.mongodb.net
