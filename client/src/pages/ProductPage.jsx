@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Tag, Package } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Tag, Package, PenLine } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { apiUrl } from '../config/api';
+import CustomOrderModal from '../components/CustomOrderModal';
 
 export default function ProductPage() {
   const { id } = useParams();
   const { dispatch } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [customOpen, setCustomOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -63,7 +65,8 @@ export default function ProductPage() {
     );
   }
 
-  const hasOffer = product.offer_price && product.offer_price < product.price;
+const hasOffer = product.offer_price && product.offer_price < product.price;
+  const isCustom = product.is_custom || product.category === 'custom';
 
   return (
     <main className="container" style={{ padding: '56px 0 84px' }}>
@@ -81,13 +84,15 @@ export default function ProductPage() {
         </div>
 
         <div className="product-detail__content">
-          <span className="eyebrow">Featured piece</span>
+          <span className="eyebrow">{isCustom ? 'Custom commission' : 'Featured piece'}</span>
           <h1 className="page-hero__title" style={{ fontSize: '2.1rem', marginBottom: 16 }}>
             {product.name}
           </h1>
 
           <p className="product-section__desc" style={{ fontSize: '1rem', maxWidth: '640px' }}>
-            {product.description || 'A carefully crafted piece from our CNC studio collection.'}
+            {product.description || (isCustom
+              ? 'Have something unique in mind? Submit a custom order with your design brief, materials, dimensions and timeline — our craft team will get back with a personalised quote.'
+              : 'A carefully crafted piece from our CNC studio collection.')}
           </p>
 
           <div className="product-detail__meta">
@@ -95,33 +100,52 @@ export default function ProductPage() {
               <Tag size={16} />
               <span>{product.category || 'General'}</span>
             </div>
-            <div className="product-detail__pill">
-              <Package size={16} />
-              <span>{product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</span>
-            </div>
+            {!isCustom && (
+              <div className="product-detail__pill">
+                <Package size={16} />
+                <span>{product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</span>
+              </div>
+            )}
           </div>
 
-          <div className="product-detail__price-row">
-            <div className="product-card__pricing">
-              {hasOffer ? (
-                <>
-                  <span className="product-card__price">₹{product.offer_price.toLocaleString('en-IN')}</span>
-                  <span className="product-card__original-price">₹{product.price.toLocaleString('en-IN')}</span>
-                </>
-              ) : (
-                <span className="product-card__price">₹{product.price.toLocaleString('en-IN')}</span>
-              )}
+          {isCustom ? (
+            <div className="product-detail__price-row">
+              <div className="product-card__pricing">
+                <span className="product-card__price">Custom Quote</span>
+              </div>
+              <button
+                className="product-card__btn"
+                onClick={() => setCustomOpen(true)}
+                data-testid="custom-quote-detail"
+              >
+                <PenLine size={14} /> Request Quote
+              </button>
             </div>
-            <button
-              className="product-card__btn"
-              onClick={addToCart}
-              disabled={product.stock === 0}
-            >
-              <ShoppingBag size={14} /> Add to cart
-            </button>
-          </div>
+          ) : (
+            <div className="product-detail__price-row">
+              <div className="product-card__pricing">
+                {hasOffer ? (
+                  <>
+                    <span className="product-card__price">₹{product.offer_price.toLocaleString('en-IN')}</span>
+                    <span className="product-card__original-price">₹{product.price.toLocaleString('en-IN')}</span>
+                  </>
+                ) : (
+                  <span className="product-card__price">₹{product.price.toLocaleString('en-IN')}</span>
+                )}
+              </div>
+              <button
+                className="product-card__btn"
+                onClick={addToCart}
+                disabled={product.stock === 0}
+              >
+                <ShoppingBag size={14} /> Add to cart
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      <CustomOrderModal open={customOpen} onClose={() => setCustomOpen(false)} />
     </main>
   );
 }
