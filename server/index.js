@@ -10,7 +10,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const db           = require('./db');
 const cloudinary   = require('./config/cloudinary');
-const parcelguru   = require('./parcelguru');
+const { pushOrder, trackOrder, mapWebhookStatus } = require('./parcelguru');
 const connectDB    = require('./config/db'); // Mongoose connection
 
 const app  = express();
@@ -272,21 +272,93 @@ app.post('/api/orders', async (req, res) => {
       items: JSON.stringify(items),
       total,
     });
-    for (const item of items) await db.decrementStock(item.id, item.quantity);
+for (const item of items) await db.decrementStock(item.id, item.quantity);
     res.json({ id: order.id });
 
-    // Push to ParcelGuru asynchronously — does not block the customer response
-    parcelguru.pushOrder({ ...order, address: address || '', items }).catch((err) => {
-      console.error('ParcelGuru push error (non-fatal):', err.message);
-    });
+    // NOTE: ParcelGuru shipment push is intentionally NOT sent here on order
+    // placement. It is triggered deliberately from the admin panel when the
+    // order is marked "ready_to_ship" (see PUT /api/orders/:id/status).
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.put('/api/orders/:id/status', verifyToken, async (req, res) => {
   try {
-    await db.updateOrderStatus(req.params.id, req.body.status);
+    const { status } = req.body;
+    await db.updateOrderStatus(req.params.id, status);
+
+    // When admin marks an order "ready_to_ship", create the ParcelGuru
+    // shipment request (manifests the order against the configured carrier).
+    if (status === 'ready_to_ship') {
+      const order = await db.getOrder(req.params.id);
+      if (order && order.items) {
+        // Fire the push asynchronously so the admin UI isn't blocked.
+        pushOrder({ ...order, items: parseItems(order).items }).then((body) => {
+          // If the push returned an AWB number, store it on the order.
+          const awb = body?.awb_number || body?.awb || body?.data?.awb_number || body?.data?.trackingNo;
+          if (awb) {
+            db.updateOrderShipment(req.params.id, { awb_number: awb }).catch(() => {});
+          }
+        }).catch((err) => {
+          console.error('ParcelGuru push error (non-fatal):', err.message);
+        });
+      }
+    }
+
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── ParcelGuru Webhook (real-time shipment status updates) ─────────────────
+// ParcelGuru POSTs shipment status events to this endpoint. The request is
+// authenticated via the `x-access-token` header, which must match
+// PARCELGURU_WEBHOOK_TOKEN (set in .env). ParcelGuru also sends the AWB number
+// back, which we store on the order so it can be surfaced in the admin panel.
+app.post('/api/v1/channel/event/hook', async (req, res) => {
+  const token = req.headers['x-access-token'] || '';
+  const expected = process.env.PARCELGURU_WEBHOOK_TOKEN || '';
+  if (expected && token !== expected) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const { event, order_id, awb_number } = req.body || {};
+    const shipmentStatus = event?.status || '';
+
+    // Map the ParcelGuru shipment status to our internal order status.
+    const internalStatus = mapWebhookStatus(shipmentStatus);
+    if (!internalStatus) {
+      console.warn(`⚠️ ParcelGuru webhook: unknown shipment status "${shipmentStatus}" — ignoring.`);
+      return res.json({ success: true, ignored: true });
+    }
+
+    // Find the order by its ParcelGuru order_id (stored as "#CNC-<id>") or by
+    // original order id. Order ids are numeric local ids.
+    let orderId;
+    const idMatch = String(order_id || '').match(/#CNC-(\d+)/);
+    if (idMatch) {
+      orderId = Number(idMatch[1]);
+    } else {
+      orderId = Number(order_id);
+    }
+
+    if (!orderId) {
+      console.warn('⚠️ ParcelGuru webhook: no resolvable order_id — ignoring.');
+      return res.json({ success: true, ignored: true });
+    }
+
+    const updates = { status: internalStatus };
+    if (awb_number) {
+      updates.awb_number = String(awb_number);
+      updates.awb_updated_at = new Date().toISOString();
+    }
+
+    await db.updateOrderShipment(orderId, updates);
+    console.log(`🔔 ParcelGuru webhook → order #${orderId} status="${internalStatus}"` + (awb_number ? ` awb=${awb_number}` : ''));
+    res.json({ success: true });
+  } catch (err) {
+    console.error('parcelguru webhook:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
@@ -393,12 +465,32 @@ app.get('/api/categories', (req, res) => {
 });
 
 // ─── Static (production) ──────────────────────────────────────────────────────
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'CNC Crafts Backend API is running.'
+// Serve the built React app (client/dist) if it exists, with SPA fallback so
+// that client-side routes (/about, /admin, /categories, etc.) work on reload.
+const clientDist = path.join(__dirname, '..', 'client', 'dist');
+const fs = require('fs');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+
+  // API health / root check (kept for deployment health checks)
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
   });
-});
+
+  // SPA fallback: any non-API GET that isn't a static asset → index.html
+  app.get('*', (req, res, next) => {
+    // Let /api/* and /uploads/* requests fall through to their handlers / 404
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) return next();
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.json({
+      success: true,
+      message: 'CNC Crafts Backend API is running.'
+    });
+  });
+}
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 async function boot() {

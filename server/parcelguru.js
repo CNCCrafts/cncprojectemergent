@@ -139,4 +139,37 @@ async function pushOrder(order) {
   return body;
 }
 
-module.exports = { pushOrder };
+// ─── Webhook status mapping (ParcelGuru → internal order status) ─────────────
+// ParcelGuru sends shipment status enums via the event webhook. We map them to
+// our internal order statuses so customers see meaningful updates on tracking.
+const WEBHOOK_STATUS_MAP = {
+  pre_booked:      'confirmed',     // shipment created in system
+  ready_to_ship:   'ready_to_ship', // label printed, awaiting pickup
+  pending_pickup:  'ready_to_ship',
+  picked_up:       'shipped',
+  in_transit:      'shipped',
+  out_for_delivery:'out_for_delivery',
+  delivered:       'delivered',
+  cancelled:       'cancelled',
+  exception:       'exception',
+  returned:        'returned',
+  lost:            'lost',
+};
+
+function mapWebhookStatus(status) {
+  return WEBHOOK_STATUS_MAP[status] || null;
+}
+
+// ─── Track order (optional) ───────────────────────────────────────────────────
+async function trackOrder(awb) {
+  if (!PARCELGURU_KEY || !awb) return null;
+  const res = await fetch(`${PARCELGURU_BASE}/api/v1/channel/orders/track/${encodeURIComponent(awb)}`, {
+    headers: {
+      'x-parcelguru-key': PARCELGURU_KEY,
+      'x-parcelguru-api-version': 'v1',
+    },
+  });
+  try { return await res.json(); } catch { return { raw: await res.text() }; }
+}
+
+module.exports = { pushOrder, trackOrder, mapWebhookStatus };

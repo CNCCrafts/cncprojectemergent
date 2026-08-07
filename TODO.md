@@ -11,5 +11,20 @@
 - [x] Started backend on :3001 (Mongo + Cloudinary connected)
 - [x] Started frontend dev server on :5000 (Vite, proxy verified)
 
+## Admin: ready_to_ship / reject + ParcelGuru shipment
+- [x] db.js: add `updateOrderShipment(id, { status, awb_number })`
+- [x] parcelguru.js: add `statusMap` + webhook status mapping helper
+- [x] index.js: trigger `pushOrder` only on `ready_to_ship` status change
+- [x] index.js: add `POST /api/v1/channel/event/hook` webhook endpoint
+- [x] Admin.jsx: add `ready_to_ship` + `rejected` to status dropdown/colors
+- [x] TrackOrder.jsx: add `ready_to_ship` to steps + `rejected` handling
+- [x] Verify statuses + test webhook endpoint
+
+## SPA routing fix (live site 404 on reload)
+- [x] server/index.js: serve built React app (`client/dist`) with express.static
+- [x] server/index.js: add SPA fallback — non-API GET routes serve `index.html`
+- [x] Verified `/about` returns SPA HTML (no more 404) and `/api/*` still returns JSON
+
 ## Next
-- Open http://localhost:5000 in a browser to use the app
+- Rebuild frontend (`cd client && npm run build`) before deploying so `client/dist` is fresh
+- Push to live site

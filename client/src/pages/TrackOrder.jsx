@@ -5,21 +5,23 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const STATUS_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
+const STATUS_STEPS = ['pending', 'confirmed', 'ready_to_ship', 'shipped', 'delivered'];
 
 const STATUS_META = {
   pending:   { icon: <Clock size={20} strokeWidth={1.75} />,       label: 'Order Placed', color: 'var(--warning)' },
   confirmed: { icon: <Package size={20} strokeWidth={1.75} />,     label: 'Confirmed',    color: '#4338CA' },
+  ready_to_ship: { icon: <Truck size={20} strokeWidth={1.75} />,   label: 'Ready to Ship', color: '#0D9488' },
   shipped:   { icon: <Truck size={20} strokeWidth={1.75} />,       label: 'Shipped',      color: '#6D28D9' },
   delivered: { icon: <CheckCircle size={20} strokeWidth={1.75} />, label: 'Delivered',    color: 'var(--success)' },
   cancelled: { icon: <XCircle size={20} strokeWidth={1.75} />,     label: 'Cancelled',    color: 'var(--danger)' },
+  rejected:  { icon: <XCircle size={20} strokeWidth={1.75} />,     label: 'Rejected',     color: 'var(--danger)' },
 };
 
 function OrderCard({ order }) {
   const [open, setOpen] = useState(false);
   const currentStep = STATUS_STEPS.indexOf(order.status);
   const meta = STATUS_META[order.status] || STATUS_META.pending;
-  const isCancelled = order.status === 'cancelled';
+  const isCancelled = order.status === 'cancelled' || order.status === 'rejected';
 
   const placedAt = new Date(order.created_at).toLocaleDateString('en-IN', {
     day: 'numeric', month: 'long', year: 'numeric',
@@ -79,9 +81,9 @@ function OrderCard({ order }) {
                 );
               })}
             </div>
-          ) : (
+) : (
             <div className="order-cancelled">
-              <XCircle size={20} /> This order has been cancelled.
+              <XCircle size={20} /> This order has been {order.status === 'rejected' ? 'rejected.' : 'cancelled.'}
             </div>
           )}
 

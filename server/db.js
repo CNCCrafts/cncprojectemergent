@@ -168,6 +168,10 @@ async function updateOrderStatus(id, status) {
   await ordersCol.updateOne({ id: Number(id) }, { $set: { status } });
   return getOrder(id);
 }
+async function updateOrderShipment(id, updates) {
+  await ordersCol.updateOne({ id: Number(id) }, { $set: updates });
+  return getOrder(id);
+}
 
 // ─── Customers ──────────────────────────────────────────────────────────────
 async function getAllCustomers() {
@@ -227,7 +231,7 @@ async function decrementStock(productId, quantity) {
 module.exports = {
   connect,
   getAllProducts, getProduct, addProduct, updateProduct, deleteProduct,
-  getAllOrders, getOrder, addOrder, updateOrderStatus,
+getAllOrders, getOrder, addOrder, updateOrderStatus, updateOrderShipment,
   getAllCustomers, getCustomerByEmail, getCustomer, addCustomer,
   addContact, getAllContacts,
   getSettings, setSetting,

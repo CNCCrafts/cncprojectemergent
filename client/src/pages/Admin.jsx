@@ -19,10 +19,57 @@ const CATEGORIES = [
 const STATUS_COLORS = {
   pending:   '#f59e0b',
   confirmed: '#3b82f6',
+  ready_to_ship: '#14b8a6',
   shipped:   '#8b5cf6',
+  out_for_delivery: '#f97316',
   delivered: '#10b981',
   cancelled: '#ef4444',
+  rejected:  '#dc2626',
+  exception: '#f43f5e',
+  returned:  '#64748b',
+  lost:      '#0f172a',
 };
+
+const STATUS_OPTIONS = [
+  'pending', 'confirmed', 'ready_to_ship', 'shipped', 'out_for_delivery',
+  'delivered', 'cancelled', 'rejected',
+];
+
+// Pill styling for the dashboard table (light backgrounds).
+function statusPillClass(status) {
+  switch (status) {
+    case 'pending':          return 'bg-amber-50 text-amber-700';
+    case 'confirmed':        return 'bg-blue-50 text-blue-700';
+    case 'ready_to_ship':    return 'bg-teal-50 text-teal-700';
+    case 'shipped':          return 'bg-violet-50 text-violet-700';
+    case 'out_for_delivery': return 'bg-orange-50 text-orange-700';
+    case 'delivered':        return 'bg-emerald-50 text-emerald-700';
+    case 'cancelled':
+    case 'rejected':         return 'bg-red-50 text-red-700';
+    case 'exception':        return 'bg-rose-50 text-rose-700';
+    case 'returned':         return 'bg-slate-100 text-slate-700';
+    case 'lost':             return 'bg-gray-900 text-white';
+    default:                 return 'bg-indigo-50 text-indigo-700';
+  }
+}
+
+// Solid pill styling for the orders list.
+function ordersPillClass(status) {
+  switch (status) {
+    case 'pending':          return 'bg-amber-500 text-white';
+    case 'confirmed':        return 'bg-blue-600 text-white';
+    case 'ready_to_ship':    return 'bg-teal-600 text-white';
+    case 'shipped':          return 'bg-violet-600 text-white';
+    case 'out_for_delivery': return 'bg-orange-500 text-white';
+    case 'delivered':        return 'bg-emerald-500 text-white';
+    case 'cancelled':
+    case 'rejected':         return 'bg-red-500 text-white';
+    case 'exception':        return 'bg-rose-500 text-white';
+    case 'returned':         return 'bg-slate-500 text-white';
+    case 'lost':             return 'bg-gray-900 text-white';
+    default:                 return 'bg-indigo-600 text-white';
+  }
+}
 
 const EMPTY_FORM = { name: '', category: 'acrylic', price: '', offer_price: '', description: '', image: '', stock: '', active: 1 };
 
@@ -328,9 +375,9 @@ export default function Admin() {
                       <tr key={o.id} className="hover:bg-gray-50/50 transition-colors group">
                         <td className="px-10 py-6 font-mono text-sm text-gray-400 group-hover:text-gray-900 transition-colors">#{String(o.id).slice(-8).toUpperCase()}</td>
                         <td className="px-10 py-6 font-bold text-gray-900">{o.customerName}</td>
-                        <td className="px-10 py-6">
-                          <span className={`status-pill ring-4 ring-white shadow-sm ${o.status === 'delivered' ? 'bg-emerald-50 text-emerald-700' : o.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-indigo-50 text-indigo-700'}`}>
-                            {o.status.toUpperCase()}
+<td className="px-10 py-6">
+                          <span className={`status-pill ring-4 ring-white shadow-sm ${statusPillClass(o.status)}`}>
+                            {o.status.replace(/_/g, ' ').toUpperCase()}
                           </span>
                         </td>
                         <td className="px-10 py-6 font-heading font-black text-gray-900">₹{o.total.toLocaleString('en-IN')}</td>
@@ -643,8 +690,8 @@ export default function Admin() {
                         <div className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-2">Gross Yield</div>
                         <div className="text-xl font-heading font-black text-gray-900">₹{order.total.toLocaleString()}</div>
                       </div>
-                      <span className={`status-pill ring-8 ring-white shadow-xl ${order.status === 'delivered' ? 'bg-emerald-500 text-white' : order.status === 'cancelled' ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white'}`}>
-                        {order.status.toUpperCase()}
+                      <span className={`status-pill ring-8 ring-white shadow-xl ${ordersPillClass(order.status)}`}>
+                        {order.status.replace(/_/g, ' ').toUpperCase()}
                       </span>
                       <div className={`w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 transition-all duration-300 ${expandedOrder === order.id ? 'rotate-180 bg-gray-900 text-white' : ''}`}><ChevronDown size={20} /></div>
                     </div>
@@ -659,7 +706,13 @@ export default function Admin() {
                           </h4>
                           <div className="space-y-4 bg-white p-8 rounded-[24px] border border-gray-100 shadow-sm">
                             <div className="flex justify-between items-center pb-4 border-b border-gray-50"><span className="text-xs font-bold text-gray-400 uppercase">Secure Email</span> <span className="font-black text-gray-900">{order.customerEmail}</span></div>
-                            <div className="flex justify-between items-center pb-4 border-b border-gray-50"><span className="text-xs font-bold text-gray-400 uppercase">Contact Node</span> <span className="font-black text-gray-900">{order.customerPhone || 'N/A'}</span></div>
+<div className="flex justify-between items-center pb-4 border-b border-gray-50"><span className="text-xs font-bold text-gray-400 uppercase">Contact Node</span> <span className="font-black text-gray-900">{order.customerPhone || 'N/A'}</span></div>
+                            {order.awb_number && (
+                              <div className="flex justify-between items-center pb-4 border-b border-gray-50">
+                                <span className="text-xs font-bold text-gray-400 uppercase">AWB / Tracking</span>
+                                <span className="font-mono font-black text-teal-700">{order.awb_number}</span>
+                              </div>
+                            )}
                             <div className="pt-2"><span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Logistics Destination</span> <span className="font-bold text-gray-700 leading-relaxed text-sm block bg-gray-50 p-4 rounded-xl border border-gray-100">{order.address}</span></div>
                           </div>
                         </div>
@@ -675,8 +728,8 @@ export default function Admin() {
                                 value={order.status}
                                 onChange={e => updateStatus(order.id, e.target.value)}
                               >
-                                {['pending','confirmed','shipped','delivered','cancelled'].map(s => (
-                                  <option key={s} value={s}>{s.toUpperCase()}</option>
+                                {STATUS_OPTIONS.map(s => (
+                                  <option key={s} value={s}>{s.replace(/_/g, ' ').toUpperCase()}</option>
                                 ))}
                               </select>
                             </div>
