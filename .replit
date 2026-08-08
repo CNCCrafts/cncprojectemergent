@@ -64,6 +64,11 @@ CLOUDINARY_API_KEY = "861455542942942"
 CLOUDINARY_CLOUD_NAME = "wiuxxcvz"
 MONGODB_DB_NAME = "cnc_ecom"
 ADMIN_EMAIL = "admin@cnccrafts.com"
+# ParcelGuru logistics — live backend needs these to push "ready_to_ship" shipments.
+# Copy the same values that are in your local .env (server) so the live site behaves like localhost.
+PARCELGURU_BASE_URL = "https://demo.myparcelguru.com"
+# TODO: set your real key here (same as local .env PARCELGURU_API_KEY)
+PARCELGURU_API_KEY = ""
 
 [deployment]
 deploymentTarget = "autoscale"

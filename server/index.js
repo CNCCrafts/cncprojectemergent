@@ -56,6 +56,13 @@ const upload = multer({
 
 console.log(`📸 Image storage: ${CLOUDINARY_ENABLED ? 'Cloudinary' : 'Local disk'}`);
 
+// Log ParcelGuru config status so "ready_to_ship" push failures are easy to spot in Render logs.
+const PARCELGURU_READY =
+  !!process.env.PARCELGURU_API_KEY &&
+  !process.env.PARCELGURU_API_KEY.includes('your_') &&
+  !process.env.PARCELGURU_API_KEY.includes('here');
+console.log(`📦 ParcelGuru: ${PARCELGURU_READY ? 'configured (' + process.env.PARCELGURU_BASE_URL + ')' : 'NOT configured — "ready to ship" will skip the courier push. Add PARCELGURU_API_KEY env var.'}`);
+
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
