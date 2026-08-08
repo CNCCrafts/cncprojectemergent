@@ -478,10 +478,23 @@ if (fs.existsSync(clientDist)) {
   });
 
   // SPA fallback: any non-API GET that isn't a static asset → index.html
-  app.get('*', (req, res, next) => {
+  // This prevents 404 errors when refreshing on client-side routes
+  // (e.g. /orders, /about, /categories, /admin, /product/xyz).
+  app.get(/^\/(?!api$|uploads$).*/, (req, res, next) => {
     // Let /api/* and /uploads/* requests fall through to their handlers / 404
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) return next();
     res.sendFile(path.join(clientDist, 'index.html'));
+  });
+
+  // Final catch-all for any remaining unmatched GET (paranoia / robustness)
+  app.use((req, res, next) => {
+    if (req.method === 'GET' &&
+        !req.path.startsWith('/api') &&
+        !req.path.startsWith('/uploads') &&
+        !path.extname(req.path)) {
+      return res.sendFile(path.join(clientDist, 'index.html'));
+    }
+    next();
   });
 } else {
   app.get('/', (req, res) => {

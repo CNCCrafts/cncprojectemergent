@@ -568,7 +568,44 @@ html { scroll-behavior: smooth; }
   color: var(--ink);
 }
 .cart-success p { color: var(--muted); line-height: 1.6; }
+.cart-success-orderid {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 6px 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(199,69,31,0.14);
+}
 .cart-success .btn-primary { margin-top: 8px; }
+
+/* WhatsApp confirm button */
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--r-pill);
+  background: #25D366;
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  transition: var(--transition);
+  white-space: nowrap;
+  border: 1px solid #25D366;
+  width: 100%;
+  margin-top: 8px;
+}
+.btn-whatsapp:hover {
+  background: #1EBE5D;
+  border-color: #1EBE5D;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(37,211,102,0.3);
+}
 
 /* ─── Forms ─────────────────────────────────────────────────────────────── */
 .form-group { margin-bottom: 18px; }

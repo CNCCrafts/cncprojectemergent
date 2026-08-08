@@ -4,6 +4,7 @@ import {
   ChevronDown, LogIn, ShoppingBag, Calendar, MapPin, Phone,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { apiUrl } from '../config/api';
 
 const STATUS_STEPS = ['pending', 'confirmed', 'ready_to_ship', 'shipped', 'delivered'];
 
@@ -136,7 +137,7 @@ export default function TrackOrder() {
     if (!user?.email) return;
     setLoading(true);
     setError('');
-    fetch(`/api/orders/mine?email=${encodeURIComponent(user.email)}`)
+fetch(apiUrl(`/api/orders/mine?email=${encodeURIComponent(user.email)}`))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(setOrders)
       .catch(() => setError('Could not load your orders. Please try again.'))
